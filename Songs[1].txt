@@ -1,0 +1,477 @@
+----------------------------Prac 1-------------------------------
+
+Aim: Bitwise Operator
+
+a = int(input("Enter first number (a): "))
+b = int(input("Enter second number (b): "))
+while True:
+    choice = input("Choose and operation to perform: &, |, ^, ~, <<, >> or q\n")
+    if(choice == '&'):
+        print("Bitwise AND operation: a & b = ", a & b)
+    elif(choice == '|'):
+        print("Bitwise OR operation: a | b = ", a | b)
+    elif(choice == '^'):
+        print("Bitwise XOR operation: a | b = ", a ^ b)
+    elif(choice == '~'):
+        print("Bitwise NOT operation: ~a = ", ~a)
+    elif(choice == '<<'):
+        print("Bitwise LEFT SHIFT operation: a << b = ", a << b)
+    elif(choice == '>>'):
+        print("Bitwise RIGHT SHIFT operation: a >> b = ", a >> b)
+    elif(choice == 'q'):
+        print("Exiting...")
+        break
+    else:
+        print("Invalid Choice! Choose from the given operations!") 
+
+
+
+------------------------------- Prac 2---------------------------------
+
+Aim: Page Rank
+
+dic = {
+    'A': ['B', 'C'],
+    'B': ['D'],
+    'C': ['A', 'B', 'C'],
+    'D': ['C']
+}
+k = 5
+
+def pageRank(dic, k, damping_factor=0.85):
+    # Calculate inbound links
+    inbound = {i: [] for i in dic}
+    for i in dic:
+        for j in dic:
+            if i in dic[j]:
+                inbound[i].append(j)
+    print("Connected Nodes:", inbound)
+ 
+   # Initialize ranks
+    num_nodes = len(dic)
+    rank = {i: 1 / num_nodes for i in dic.keys()}
+    for iteration in range(k):
+        new_rank = {i: (1 - damping_factor) / num_nodes for i in dic.keys()}
+        for node in dic:
+            temp = 0
+            for inbound_node in inbound[node]:
+                temp += damping_factor * (rank[inbound_node] / len(dic[inbound_node]))
+            new_rank[node] += temp
+        rank = new_rank.copy()
+        print(f"Iteration {iteration + 1}:", rank)
+    return rank
+
+
+
+
+# Run PageRank and print the final ranks
+final_ranks = pageRank(dic, k)
+print("Final Ranks:", final_ranks)
+
+
+
+
+----------------------------------Prac 3--------------------------------
+
+Aim: Dynamic programming algorithm (Edit Distance)
+
+def edit_dis(s1,s2):
+    m=len(s1)
+    n= len(s2)
+
+    dp = [[0]*(n+1) for _ in range(m+1)]
+
+    for i in range(m+1):
+        dp[i][0]=i
+    for j in range(n+1):
+        dp[0][j]=j
+
+    for i in range(1,m + 1):
+        for j in range(1,n+1):
+            if s1[i - 1]==s2[j-1]:
+                dp[i][j] =dp[i-1][j-1]
+            else:
+                dp[i][j]=1+min(dp[i-1][j],
+                               dp[i][j-1],
+                               dp[i-1][j-1])
+    return dp[m][n]
+s1=input("Enter the first string ")
+s2=input("Enter the Second String ")
+
+distance = edit_dis(s1,s2)
+
+print(f"The edit distance between '{s1}' and '{s2}' is {distance}.")
+
+
+
+
+-----------------------------------Prac 4-------------------------------
+
+Aim: Compute Similarity
+
+f1=input("Enter a name of file1: ")
+f2=input("Enter a name of file2: ")
+with open(f1,'r') as f:
+    f1=f.read().lower().split(' ')
+with open(f2,'r') as f:
+    f2=f.read().lower().split(' ')
+a1 = set(f1)
+a2 = set(f2)
+ele_1 = sorted(list(a2))
+ele_2 = sorted(list(a1.difference(a2)))
+ele_1.extend(ele_2)
+print(ele_1)
+vec_1 = [0]*len(ele_1)
+vec_2 = [0]*len(ele_1)
+for i in range(len(ele_1)):
+    if ele_1[i] in f2:
+        vec_1[i] = f2.count(ele_1[i])
+for i in range(len(ele_1)):
+    if ele_1[i] in f1:
+        vec_2[i] = f1.count(ele_1[i])
+#cosine
+num = 0
+for i,j in zip(vec_1,vec_2):
+    num+=(i*j)
+d1 = 0
+for i in vec_1:
+    d1+=i**2
+d1 = d1**(0.5)
+d2 = 0
+for i in vec_2:
+    d2+=i**2
+d2 = d2**(0.5)
+print("The cosine similarity for given doc is: ",num/(d1*d2))
+
+
+------------------------------------Prac 5------------------------------
+
+Aim: Hits Algorithm
+
+matrix = [
+    [0, 1, 1, 1],
+    [1, 0, 1, 1],
+    [1, 0, 0, 1],
+    [0, 0, 0, 1]
+]
+
+k =3
+hub_score = [1] * len(matrix)
+auth_score = [0] * len(matrix)
+
+for iteration in range(k):
+    # Calculate authority scores
+    for i in range(len(matrix)):
+        auth_score[i] = 0
+        for j in range(len(matrix)):
+            if matrix[j][i] == 1:  # Note the index [j][i] for authority score
+                auth_score[i] += hub_score[j]
+                
+    sum_auth = sum(auth_score)
+    if sum_auth != 0:
+        for i in range(len(matrix)):
+            auth_score[i] /= sum_auth
+
+    # Calculate hub scores
+    for i in range(len(matrix)):
+        hub_score[i] = 0
+        for j in range(len(matrix)):
+            if matrix[i][j] == 1:  # Note the index [i][j] for hub score
+                hub_score[i] += auth_score[j]
+                
+    sum_hub = sum(hub_score)
+    if sum_hub != 0:
+        for i in range(len(matrix)):
+            hub_score[i] /= sum_hub
+
+    print(f"Iteration {iteration + 1}:")
+    print(f"  Hub Scores: {hub_score}")
+    print(f"  Authority Scores: {auth_score}")
+    print()
+
+print("The max hub score is: ", max(hub_score))
+print("The max auth score is: ", max(auth_score))
+
+
+
+-----------------------------------Prac 6-------------------------------
+
+Aim: Map Reduce
+
+def mapper(data):
+    char_counts = {}
+    for char in data:
+        if char.isalpha():
+            char = char.lower()
+            char_counts[char] = char_counts.get(char, 0) + 1
+    return char_counts
+
+def reducer(data):
+    char_counts = {}
+    for count_dict in data:
+        for char, count in count_dict.items():
+            char_counts[char] = char_counts.get(char, 0) + count
+    return char_counts
+
+data=input("Enter the data:")
+mapped_data = [mapper(data)]
+reduced_data = reducer(mapped_data)
+print(reduced_data)
+
+
+
+------------------------------------Prac 7------------------------------
+
+Aim: Stop-word Removal With Sentence
+
+import nltk
+from nltk.corpus import stopwords
+nltk.download('stopwords')
+nltk.download('punkt');
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+#print(stopwords.words("english"))
+eg=input("Enter the sentence: ")
+eg=eg.lower()
+word=word_tokenize(eg)
+stop_words=set(stopwords.words("english"))
+#filt=[w for w in word if not w.lower in stop_words]
+filt=[]
+for w in word:
+    if w not in stop_words:
+        filt.append(w)
+#print(word)
+print(filt)
+
+
+Aim: Stop-word Removal With File
+
+import io
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+try:
+    stop=set(stopwords.words("english"))
+    filename=input("Please enyter existing .txt filename: ")
+    file1=open(filename)
+    line=file1.read().lower()
+    words=line.split()
+    for r in words:
+        if not r in stop:
+            appendFile=open("sample.txt","a")
+            appendFile.write(r+" ")
+            appendFile.close()
+    print("Stopwords successfully removed")
+except:
+    print("The error occured")
+
+
+
+----------------------------------Prac 8--------------------------------
+
+Aim: Boolean Retrieval
+
+def boolean(strs=[],files=[], query=''):
+    if len(files)!=0 and len(strs)==0:
+        strs = []
+        for f in files:
+            with open(f'{f}.txt', "r") as file:
+                strs.append(file.read().strip())
+
+    unique = set(' '.join(strs).split())
+    bool_val = [{word: word in s.split() for word in unique} for s in strs]
+
+    query = query.split()
+    var_bool = []
+    ope = []
+    not_switch = False
+
+    for term in query:
+        if term in ('and', 'or'):
+            ope.append(term)
+        elif term == 'not':
+            not_switch = True
+        else:
+            temp = [not doc[term] if not_switch else doc[term] for doc in bool_val]
+            var_bool.append(temp)
+            not_switch = False
+
+    while len(var_bool) > 1:
+        a, b = var_bool.pop(0), var_bool.pop(0)
+        op = ope.pop(0)
+        var_bool.insert(0, [i and j if op == 'and' else i or j for i, j in zip(a, b)])
+
+    return 'document number:'+str([index + 1 for index, value in enumerate(var_bool[0]) if value])
+
+#For User Input
+s1 = "java is elegant"
+s2 = "C++ is powerful"
+s3 = "Rust is safe"
+s4 = "Go is efficient"
+s5 = "Kotlin is modern"
+strs = [s1, s2, s3, s4, s5]
+query = "is and not Kotlin and not C++"
+print('Input ',boolean(strs=strs, query=query))
+#Input from Files
+files = ['d1','d2','d3','d4','d5']
+query = 'not java and not Python and is'
+print('File ',boolean(files=files, query=query))
+
+
+
+
+--------------------------------Prac 9----------------------------------
+
+Aim: Vector Space Model
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+def get_user_input():
+    # Get the number of documents
+    num_docs = int(input("Enter the number of documents: "))
+    
+    # Collect the documents
+    documents = []
+    for i in range(num_docs):
+        doc = input(f"Enter document {i + 1}: ")
+        documents.append(doc)
+    
+    # Get the query
+    query = input("Enter the query: ")
+    
+    return documents, query
+
+def main():
+    # Get user input
+    documents, query = get_user_input()
+
+    # Check if we have documents and a query
+    if not documents or not query:
+        print("Documents or query cannot be empty.")
+        return
+
+    # Transform Data
+    vectorizer = TfidfVectorizer()
+    tfidf_matrix = vectorizer.fit_transform(documents + [query])
+    
+    # Separate the query vector from the documents' vectors
+    doc_vectors = tfidf_matrix[:-1]  # All but the last
+    query_vector = tfidf_matrix[-1]  # The last one
+    
+    # Compute Similarity
+    cosine_similarities = cosine_similarity(query_vector, doc_vectors).flatten()
+    
+    # Rank Documents
+    document_scores = list(enumerate(cosine_similarities))
+    document_scores.sort(key=lambda x: x[1], reverse=True)
+    
+    # Print the rankings and scores
+    print("\nDocument Rankings and Scores:")
+    for rank, (index, score) in enumerate(document_scores, start=1):
+        print(f"Rank {rank}: Document {index + 1} (Score: {score:.4f})")
+
+if __name__ == "__main__":
+    main()
+
+
+
+---------------------------------Prac 10--------------------------------
+
+Aim: XML to CSV
+
+import xml.etree.ElementTree as ET 
+import csv 
+def flatten_record(record): 
+""" Flatten a nested XML record into a flat dictionary. """ 
+flat_record = {} 
+def flatten_element(element, prefix=''): 
+""" Recursive function to flatten nested XML elements. """ 
+for child in element: 
+tag = child.tag 
+if len(child): 
+flatten_element(child, prefix + tag + '_') 
+else: 
+flat_record[prefix + tag] = child.text 
+flatten_element(record) 
+return flat_record 
+def xml_to_csv(xml_file, csv_file): 
+# Parse the XML file 
+tree = ET.parse(xml_file) 
+root = tree.getroot() 
+# Open a CSV file for writing 
+with open(csv_file, 'w', newline='', encoding='utf-8') as csvfile: 
+# Create a CSV writer object
+csvwriter = csv.writer(csvfile) 
+# Collect headers and records 
+headers = set() 
+records = [] 
+for record in root.findall('record'): 
+flat_record = flatten_record(record) 
+headers.update(flat_record.keys()) 
+records.append(flat_record) 
+# Convert set to a sorted list 
+headers = sorted(headers) 
+# Write headers to the CSV file 
+csvwriter.writerow(headers) 
+# Write rows to the CSV file 
+for record in records: 
+row = [record.get(header, '') for header in headers] 
+csvwriter.writerow(row) 
+# Define the XML and CSV file paths 
+xml_file = input("Enter the path of your xml file: ") 
+csv_file = input("Enter the name of the csv file: ") + ".csv" 
+# Convert XML to CSV 
+xml_to_csv(xml_file, csv_file) 
+print(f'Converted {xml_file} to {csv_file}') 
+
+-------------------------Prac 11----------------------------------------
+
+Aim: Simple web crawler
+
+import urllib.request
+import re
+from html.parser import HTMLParser
+
+# Create a subclass of HTMLParser to handle the extraction of links
+class LinkParser(HTMLParser):
+    def _init_(self):
+        super()._init_()
+        self.links = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == 'a':
+            for attr in attrs:
+                if attr[0] == 'href':
+                    self.links.append(attr[1])
+
+def fetch_page(url):
+    try:
+        with urllib.request.urlopen(url) as response:
+            return response.read().decode('utf-8')
+    except Exception as e:
+        print(f"Error fetching page: {e}")
+        return None
+
+# Take URL input from the user
+url = input("Enter the URL to crawl: ")
+
+# Fetch the page content
+page_content = fetch_page(url)
+if page_content is None:
+    print("Page doesnt have any content")
+
+else:
+    # Parse the HTML content to find all links
+    parser = LinkParser()
+    parser.feed(page_content)
+
+    # Print out all the links found on the page
+    print("Links found on the page:")
+    for link in parser.links:
+        print(link)
+
+
+
+
+
+
